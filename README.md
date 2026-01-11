@@ -1,3 +1,5 @@
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/a87211a7-bb31-4876-80e1-e910acdcedf5" />
+
 # Isaac Sim -> ROS2 -> YOLO Object Detection Pipeline
 
 A complete pipeline for object detection using NVIDIA Isaac Sim simulation, ROS2 Humble, and YOLOv8.
