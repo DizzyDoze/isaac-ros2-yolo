@@ -47,19 +47,21 @@ isaac-ros2-yolo/
 
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Run Setup
 
 ```bash
-chmod +x setup.sh start.sh stop.sh monitor.sh
+chmod +x setup.sh
 ./setup.sh
 ```
 
-This installs:
-- Docker and Docker Compose
-- NVIDIA Container Toolkit
-- Configures Docker for GPU access
+This **creates all required files**:
+- `docker-compose.yml`
+- `scripts/simple_bottle_scene.py` (warehouse scene)
+- `docker/Dockerfile.yolo`
+- `config/fastdds.xml`
+- `start.sh`, `stop.sh`, `monitor.sh`
 
-**After setup, log out and back in** (or run `newgrp docker`).
+**Important**: Run `./setup.sh` on each new machine before starting.
 
 ### 2. Start the Pipeline
 
@@ -176,12 +178,12 @@ sudo systemctl restart docker
 
 ### No detections showing
 
-1. Wait 2-3 minutes for Isaac Sim to fully load
-2. Check if `/rgb` topic is publishing:
+1. **Re-run setup**: `./setup.sh` then `./stop.sh && ./start.sh`
+2. Wait 2-3 minutes for Isaac Sim to fully load
+3. Check if `/rgb` topic is publishing:
    ```bash
    docker exec yolo_ros2_node bash -c 'source /opt/ros/humble/setup.bash && ros2 topic hz /rgb'
    ```
-3. Lower the detection threshold in `docker-compose.yml`
 
 ### Container keeps restarting
 
