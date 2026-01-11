@@ -1,0 +1,32 @@
+FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
+ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y software-properties-common curl gnupg lsb-release && \
+    add-apt-repository universe && \
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
+    apt-get update && apt-get install -y \
+    ros-humble-ros-base ros-humble-cv-bridge ros-humble-image-transport \
+    ros-humble-vision-msgs ros-humble-rmw-fastrtps-cpp \
+    python3-pip python3-colcon-common-extensions git && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --upgrade pip && \
+    pip3 install "numpy<2.0" ultralytics opencv-python-headless torch torchvision lap
+
+WORKDIR /yolo_ws/src
+RUN git clone --depth 1 https://github.com/mgonzs13/yolo_ros.git && \
+    pip3 install -r yolo_ros/requirements.txt
+
+WORKDIR /yolo_ws
+RUN source /opt/ros/humble/setup.bash && \
+    colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+RUN mkdir -p /root/models && \
+    python3 -c "from ultralytics import YOLO; m=YOLO('yolov8n.pt'); import shutil; shutil.move('yolov8n.pt', '/root/models/yolov8n.pt')"
+
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
+    echo "source /yolo_ws/install/setup.bash" >> /root/.bashrc
+
+WORKDIR /yolo_ws
